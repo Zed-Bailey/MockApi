@@ -10,12 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-/*
- * TODO: add method to convert DynamicRow to json
- add middleware to block api requests until start button is clicked?
- */
-
-
 
 // Add services to the container.
 builder.Services.AddRazorPages();
