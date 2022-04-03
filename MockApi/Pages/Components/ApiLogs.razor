@@ -1,22 +1,48 @@
 @using MockApi.Services
+@using MockApi.Data
 @inject ApiService _service
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    @foreach(var apiEvent in _service.Events)
-    {
-        <MudChip Variant="Variant.Filled" Color="Color.Info">@apiEvent.Method</MudChip>
-        <MudText>@apiEvent.QueryTime</MudText>
-        <MudText>@apiEvent.Endpoint</MudText>
-        <MudText>@apiEvent.Query</MudText>
-    }
+<MudContainer MaxWidth="MaxWidth.Medium" class="mt-2" >
     
-    @* Add a button to clear the events *@
     @if (_service.Events.Count > 0)
     {
+        <MudExpansionPanels>
+            @foreach (var apiEvent in _service.Events)
+            {
+                <MudExpansionPanel>
+                    <TitleContent>
+                        <div class="d-flex">
+                            <MudChip Variant="Variant.Filled" Color="Color.Info">@apiEvent.Method</MudChip>
+                            <MudText>@apiEvent.Query</MudText>
+                        </div>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudText> Method: <strong>@apiEvent.Method</strong></MudText>
+                        <MudText> Time: <strong>@apiEvent.QueryTime</strong></MudText>
+                        <MudText> Query: <strong>@apiEvent.Query</strong></MudText>
+                    </ChildContent>
+                </MudExpansionPanel>
+                    
+            }
+        </MudExpansionPanels>
+     
+
+     
         <div class="d-flex">
             <MudSpacer/>
             <MudButton Class="mt-3" ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="@(() => _service.Events.Clear())">Clear events</MudButton>
         </div>
     }
-    
+    else
+    {
+        <div>
+            <MudText Align="Align.Center" Class="mt-3" Typo="Typo.h5">No logs to show</MudText>
+        </div>
+    }
+
 </MudContainer>
+
+@code {
+
+}
+
