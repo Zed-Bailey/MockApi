@@ -1,6 +1,6 @@
 namespace MockApi.Data;
 
-public class APIEvent
+public class ApiLog
 {
     public string Endpoint { get; set; }
     public string Query { get; set; }
