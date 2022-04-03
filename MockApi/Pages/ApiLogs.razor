@@ -1,0 +1,22 @@
+@using MockApi.Services
+@inject ApiService _service
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    @foreach(var apiEvent in _service.Events)
+    {
+        <MudChip Variant="Variant.Filled" Color="Color.Info">@apiEvent.Method</MudChip>
+        <MudText>@apiEvent.QueryTime</MudText>
+        <MudText>@apiEvent.Endpoint</MudText>
+        <MudText>@apiEvent.Query</MudText>
+    }
+    
+    @* Add a button to clear the events *@
+    @if (_service.Events.Count > 0)
+    {
+        <div class="d-flex">
+            <MudSpacer/>
+            <MudButton Class="mt-3" ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="@(() => _service.Events.Clear())">Clear events</MudButton>
+        </div>
+    }
+    
+</MudContainer>

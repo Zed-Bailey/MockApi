@@ -1,0 +1,24 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>MockApi</PageTitle>
+<MudThemeProvider/>
+
+<MudDialogProvider
+    FullWidth="true"
+    MaxWidth="MaxWidth.ExtraSmall"
+    CloseButton="true"
+    DisableBackdropClick="true"
+    NoHeader="true"
+    Position="DialogPosition.Center"
+    CloseOnEscapeKey="true"
+/>
+
+<MudSnackbarProvider
+    />
+
+
+<MudLayout>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout> 

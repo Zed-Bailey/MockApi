@@ -1,0 +1,30 @@
+
+
+<MudDialog>
+    <TitleContent>
+        <MudIcon Icon="@Icons.Material.Filled.Create"/>
+        @Header
+    </TitleContent>
+    <DialogContent>
+        <MudInputString @bind-Value="@Input" Variant="Variant.Outlined" Label="New Name"></MudInputString>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string Header { get; set; } 
+    string Input;
+    
+
+
+    // close dialog and return result
+    void Submit() => MudDialog.Close(DialogResult.Ok(Input));
+    
+
+    void Cancel() => MudDialog.Cancel();
+}

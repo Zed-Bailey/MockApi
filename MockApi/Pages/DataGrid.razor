@@ -1,0 +1,106 @@
+
+@using MockApi.Data
+
+@using System.Globalization
+@using MockApi.Services
+@inject DataService _service
+@inject ApiService _apiService
+@inject ISnackbar _snackbar
+@inject IDialogService _dialogService
+
+@* https://mudblazor.com/components/table#inline-edit-mode *@
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudToolBar>
+
+        @if (!_apiRunning)
+        {
+            <MudSpacer/>
+            <MudButton StartIcon="@Icons.Material.Outlined.Power" Variant="Variant.Filled" Color="Color.Primary" OnClick="ToggleServer">Start</MudButton>   
+        }
+        else
+        {
+            <MudText Align="Align.Left">Listening on: https://@_apiService.Host/api/data</MudText>
+            <MudSpacer/>
+            <MudButton StartIcon="@Icons.Material.Outlined.StopCircle" Variant="Variant.Filled" Color="Color.Error" OnClick="ToggleServer">Stop</MudButton>
+        }
+    </MudToolBar>
+    
+    <MudTable Items="@_service.Rows" FixedHeader="true" Height="400px" Hover="true">
+
+        @* Dynamically generate the columns *@
+        <HeaderContent>
+            @foreach (var field in _service.ColumnNames)
+            {
+                <MudTh>@(_textInfo.ToTitleCase(field))</MudTh>
+            }
+        </HeaderContent>
+        
+        @* Dynamically generate the rows *@
+        <RowTemplate>
+            @foreach (var row in _service.Rows)
+            {
+                @foreach (var field in _service.ColumnNames)
+                {
+                    <MudTd DataLabel="@(_textInfo.ToTitleCase(field))">@row.ValueFor(field)</MudTd>
+                }
+            }
+        </RowTemplate>
+    </MudTable>
+    
+    <div style="margin-top: 15px"/>
+    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewColumn">Column</MudButton>
+    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark">Row</MudButton>
+    
+    @* Add an event log so the user can see all the requests that they have made *@
+    
+</MudContainer>
+
+
+
+@code
+{
+
+    readonly TextInfo _textInfo = CultureInfo.CurrentCulture.TextInfo;
+
+    bool _apiRunning;
+
+    protected override void OnInitialized()
+    {
+        _apiRunning = _apiService.API_ENABLED;
+    }
+
+    void ToggleServer()
+    {
+        _apiRunning = !_apiRunning;
+        _apiService.API_ENABLED = _apiRunning;
+    }
+
+    void NewRow()
+    {
+        
+    }
+
+    
+    // Create a new column
+    async Task NewColumn()
+    {
+        //TODO: figure out why the title isn't showing in the dialog?
+        
+        var parameters = new DialogParameters();
+        parameters.Add("Header", "Create New Column");
+        
+        var dialog = _dialogService.Show<NewDialog>("New Column");
+        var result = await dialog.Result;
+        // add column if we didn't cancel
+        if (!result.Cancelled)
+        {
+            Console.WriteLine(result.Data);
+            _snackbar.Add("Column Added", Severity.Success);
+        }
+        
+        
+    }
+    
+
+}

@@ -1,0 +1,61 @@
+using System.Dynamic;
+using MudBlazor;
+using System.Collections.Generic;
+using MockApi.Data;
+
+namespace MockApi.Services;
+
+public class DataService
+{
+    // https://www.oreilly.com/content/building-c-objects-dynamically/
+    public readonly List<string> ColumnNames = new();
+
+    public List<DynamicRow> Rows { get; } = new ();
+    
+    public DataService()
+    {
+        ColumnNames = new List<string> { "test", "test 2", "omg another column"};
+        dynamic row = new DynamicRow();
+        row.test = "test";
+        Rows.Add(row);
+    }
+
+
+    /// <summary>
+    /// Add a new column to all the rows
+    /// </summary>
+    /// <param name="name">Name of the new column</param>
+    /// <returns>false if a column already exists with that name</returns>
+    public bool AddColumn(string name)
+    {
+        // check if column already exists
+        if (ColumnNames.Contains(name)) return false;
+        
+        // add column name and update rows
+        ColumnNames.Add(name);
+        foreach (var row in Rows)
+        {
+            row.AddNewMember(name);
+        }
+
+        return true;
+    }
+    
+    public void AddRow()
+    {
+        var row = new DynamicRow();
+        row.AddMembersNoValue(ColumnNames);
+        Rows.Add(row);
+    }
+    
+    
+    public bool ImportFile(string file)
+    {
+        throw new NotImplementedException("Data file import is not implemented!");
+    }
+    
+    public bool ExportFile(string file)
+    {
+        throw new NotImplementedException("Data file export is not implemented!");
+    }
+}
