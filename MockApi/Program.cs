@@ -76,10 +76,9 @@ app.Use(async (ctx, next) =>
             await ctx.Response.WriteAsync("Api not enabled");
             return;
         }
-        else
-        {
-            // add a log{}getl;  public void ClerarLogs() { }Evemts.nts.Clear();public vodi adid addAddLog() {}Htt
-        }
+       
+        // add a log
+        apiService.AddLog(ctx.Request);
     }
     
     await next.Invoke();    
