@@ -15,13 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
  add middleware to block api requests until start button is clicked?
  */
 
-var apiService = new ApiService();
+
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<DataService>();
+
+// setup api service singleton, stores logs and the api status 
+var apiService = new ApiService();
 builder.Services.AddSingleton(apiService);
 
 // Configuring the snackbar documentation

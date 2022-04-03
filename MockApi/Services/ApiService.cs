@@ -13,6 +13,7 @@ public class ApiService
         Events.Clear();
     }
     
+    // TODO: implement extracting data from request and creating a log
     public void AddLog() {
     }
     
