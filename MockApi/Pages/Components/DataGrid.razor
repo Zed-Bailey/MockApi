@@ -66,13 +66,13 @@
 
     protected override void OnInitialized()
     {
-        _apiRunning = _apiService.API_ENABLED;
+        _apiRunning = _apiService.ApiEnabled;
     }
 
     void ToggleServer()
     {
         _apiRunning = !_apiRunning;
-        _apiService.API_ENABLED = _apiRunning;
+        _apiService.ApiEnabled = _apiRunning;
     }
 
     void NewRow()
