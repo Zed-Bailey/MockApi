@@ -63,7 +63,7 @@ app.Use(async (ctx, next) =>
     // check if the path contains the api endpoint, checks if the api has been enabled, blocks request if it hasn't returning a 404 response
     if (ctx.Request.Path.ToString().Contains("/api/data") )
     {
-        if(apiService.API_ENABLED is false)
+        if(apiService.ApiEnabled is false)
         {
             ctx.Response.StatusCode = 404;
             //MARK: return json response?

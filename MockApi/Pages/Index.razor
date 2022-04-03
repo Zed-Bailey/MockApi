@@ -1,11 +1,12 @@
 @using MockApi.Pages.Components;
 
 @page "/"
-<MudTabs Elevation="1" Outlined="true">
+<MudTabs Centered="true">
     <MudTabPanel Text="Data" Icon="@Icons.Material.Filled.DataExploration">
         <DataGrid/>
     </MudTabPanel>
     <MudTabPanel Text="Events" Icon="@Icons.Material.Filled.Event">
-        <MudText> Test panel</MudText>
+        
+        <ApiLogs/>
     </MudTabPanel>
 </MudTabs>

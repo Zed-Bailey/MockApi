@@ -1,13 +1,14 @@
+using System.Collections.ObjectModel;
 using MockApi.Data;
 
 namespace MockApi.Services;
 
 public class ApiService
 {
-    public bool API_ENABLED;
+    public bool ApiEnabled;
     public string Host;
     
-    public List<ApiLog> Events { get; } = new();
+    public ObservableCollection<ApiLog> Events { get; } = new();
     
     public void ClearLogs() {
         Events.Clear();
