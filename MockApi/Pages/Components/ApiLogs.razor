@@ -1,48 +1,61 @@
 @using MockApi.Services
 @using MockApi.Data
+@using System.Collections.Specialized
 @inject ApiService _service
 
-<MudContainer MaxWidth="MaxWidth.Medium" class="mt-2" >
+<MudContainer MaxWidth="MaxWidth.Medium" class="mt-2">
+    
+    <div style="height: 500px; overflow: auto">
+        @if (_service.Events.Count > 0)
+        {
+            <MudExpansionPanels>
+                @foreach (var apiEvent in _service.Events)
+                {
+                    <MudExpansionPanel>
+                        <TitleContent>
+                            <div class="d-flex">
+                                <MudChip Variant="Variant.Filled" Color="Color.Info">@apiEvent.Method</MudChip>
+                                <MudText>@apiEvent.Query</MudText>
+                            </div>
+                        </TitleContent>
+                        <ChildContent>
+                            <MudText> Method: <strong>@apiEvent.Method</strong></MudText>
+                            <MudText> Time: <strong>@apiEvent.QueryTime</strong></MudText>
+                            <MudText> Query: <strong>@apiEvent.Query</strong></MudText>
+                        </ChildContent>
+                    </MudExpansionPanel>
+
+                }
+            </MudExpansionPanels>
+        }
+        else
+        {
+            // add margin to the top to position text in center of container, TODO: figure out a better way to center
+            <MudText Align="Align.Center" Style="margin-top: 250px;" Typo="Typo.h5">No logs to show</MudText>
+        }
+    </div>
     
     @if (_service.Events.Count > 0)
     {
-        <MudExpansionPanels>
-            @foreach (var apiEvent in _service.Events)
-            {
-                <MudExpansionPanel>
-                    <TitleContent>
-                        <div class="d-flex">
-                            <MudChip Variant="Variant.Filled" Color="Color.Info">@apiEvent.Method</MudChip>
-                            <MudText>@apiEvent.Query</MudText>
-                        </div>
-                    </TitleContent>
-                    <ChildContent>
-                        <MudText> Method: <strong>@apiEvent.Method</strong></MudText>
-                        <MudText> Time: <strong>@apiEvent.QueryTime</strong></MudText>
-                        <MudText> Query: <strong>@apiEvent.Query</strong></MudText>
-                    </ChildContent>
-                </MudExpansionPanel>
-                    
-            }
-        </MudExpansionPanels>
-     
-
-     
         <div class="d-flex">
             <MudSpacer/>
-            <MudButton Class="mt-3" ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="@(() => _service.Events.Clear())">Clear events</MudButton>
+            <MudButton Class="mt-3" ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="@(() => _service.ClearLogs())">Clear events</MudButton>
         </div>
     }
-    else
-    {
-        <div>
-            <MudText Align="Align.Center" Class="mt-3" Typo="Typo.h5">No logs to show</MudText>
-        </div>
-    }
+
 
 </MudContainer>
 
 @code {
 
+    protected override void OnInitialized()
+    {
+        // subscribe to collection updates
+        _service.Events.CollectionChanged += RefreshLogs;
+    }
+
+    // force ui refresh when the ObservableCollection updates
+    void RefreshLogs(object sender, NotifyCollectionChangedEventArgs e) => InvokeAsync(StateHasChanged);
+    
 }
 
