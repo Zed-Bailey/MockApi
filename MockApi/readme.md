@@ -9,7 +9,7 @@ and generate a simple api to use while testing/developing your application
 All data returned from the api is in json format.
 
 
-**GET** /all
+**GET** /
 
 returns all the rows
 
@@ -27,3 +27,9 @@ returns all the rows with a matching column value
 - [ ] edit a cell
 - [ ] mark column as un-editable with right click menu on column
 - [ ] query data
+
+
+## Future improvements
+
+- look into changing the data table into a MudBlazor DataGrid
+- implement an inbuilt route tester/generator 
