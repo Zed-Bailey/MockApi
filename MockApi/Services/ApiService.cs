@@ -8,8 +8,11 @@ public class ApiService
     public bool ApiEnabled;
     public string Host;
     
-    public ObservableCollection<ApiLog> Events { get; } = new();
+    public readonly ObservableCollection<ApiLog> Events = new();
     
+    /// <summary>
+    /// Clear the logs
+    /// </summary>
     public void ClearLogs() {
         Events.Clear();
     }
