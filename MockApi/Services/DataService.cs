@@ -8,18 +8,24 @@ namespace MockApi.Services;
 public class DataService
 {
     // https://www.oreilly.com/content/building-c-objects-dynamically/
-    public readonly List<string> ColumnNames = new();
+    public readonly List<string> ColumnNames  = new();
 
     public List<DynamicRow> Rows { get; } = new ();
     
     public DataService()
     {
         ColumnNames = new List<string> { "test", "test 2", "omg another column"};
-        dynamic row = new DynamicRow();
-        row.test = "test";
-        Rows.Add(row);
     }
 
+    /// <summary>
+    /// Check to see if a column exists
+    /// </summary>
+    /// <param name="name">name of the column to check</param>
+    /// <returns>returns true if it exists. false otherwise</returns>
+    public bool ColumnExists(string name)
+    {
+        return ColumnNames.Contains(name);
+    }
 
     /// <summary>
     /// Add a new column to all the rows
@@ -29,7 +35,7 @@ public class DataService
     public bool AddColumn(string name)
     {
         // check if column already exists
-        if (ColumnNames.Contains(name)) return false;
+        if (ColumnExists(name)) return false;
         
         // add column name and update rows
         ColumnNames.Add(name);
@@ -58,4 +64,6 @@ public class DataService
     {
         throw new NotImplementedException("Data file export is not implemented!");
     }
+
+    
 }
