@@ -33,16 +33,35 @@ public class DynamicRow
     /// Adds a new member to the row with a default value
     /// </summary>
     /// <param name="name">The name of the new member to add</param>
-    public void AddNewMember(string name)
+    public void AddNewColumn(string name)
     {
         _dictionary[name] = null;
     }
-    
+
+    /// <summary>
+    /// Remove a column from the dictionary, this will also remove the associated value with it
+    /// </summary>
+    /// <param name="name">Name of the column to remove</param>
+    public void RemoveColumn(string name)
+    {
+        _dictionary.Remove(name);
+    }
+
+    /// <summary>
+    /// Updates a column name with a new value
+    /// </summary>
+    /// <param name="oldName">The old name</param>
+    /// <param name="newName">The new name</param>
+    public void EditColumn(string oldName, string newName)
+    {
+        var valueAtOldKey = _dictionary[oldName];
+        
+    }
     /// <summary>
     /// Initializes the row with all the members required with null
     /// </summary>
     /// <param name="keys">A List of key names to add</param>
-    public void AddMembersNoValue(IEnumerable<string> keys)
+    public void AddColumnsNoValue(IEnumerable<string> keys)
     {
         foreach (var key in keys)
         {

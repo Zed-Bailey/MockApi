@@ -41,7 +41,7 @@ public class DataService
         ColumnNames.Add(name);
         foreach (var row in Rows)
         {
-            row.AddNewMember(name);
+            row.AddNewColumn(name);
         }
 
         return true;
@@ -50,7 +50,7 @@ public class DataService
     public void AddRow()
     {
         var row = new DynamicRow();
-        row.AddMembersNoValue(ColumnNames);
+        row.AddColumnsNoValue(ColumnNames);
         Rows.Add(row);
     }
     
