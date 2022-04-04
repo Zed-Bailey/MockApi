@@ -3,6 +3,7 @@
 
 @using System.Globalization
 @using MockApi.Services
+@using System.Configuration
 @inject DataService _dataService
 @inject ApiService _apiService
 @inject ISnackbar _snackbar
@@ -26,7 +27,8 @@
         }
     </MudToolBar>
     
-    <MudTable Items="@_dataService.Rows" FixedHeader="true" Height="400px" Hover="true">
+    <MudTable Items="@_dataService.Rows" FixedHeader="true" HorizontalScrollbar="true" Height="400px" Hover="true" IsEditRowSwitchingBlocked="false" 
+              OnCommitEditClick="CommitEdit" RowEditPreview="BackupRow" RowEditCancel="ResetRow" RowEditCommit="EditCommitted">
 
         @* Dynamically generate the columns *@
         <HeaderContent>
@@ -38,19 +40,31 @@
         
         @* Dynamically generate the rows *@
         <RowTemplate>
-            @foreach (var row in _dataService.Rows)
+            
+            @foreach (var field in _dataService.ColumnNames)
             {
-                @foreach (var field in _dataService.ColumnNames)
-                {
-                    <MudTd DataLabel="@(_textInfo.ToTitleCase(field))">@row.ValueFor(field)</MudTd>
-                }
+                <MudTd DataLabel="@(_textInfo.ToTitleCase(field))">@context.ValueFor(field)</MudTd>
             }
-        </RowTemplate>
+        </RowTemplate> 
+        <RowEditingTemplate>
+            @foreach (var field in _dataService.ColumnNames)
+            {
+                <MudTd DataLabel="@(_textInfo.ToTitleCase(field))">
+                    <MudTextField T="string" @bind-Value="@context._dictionary[field]"/>
+                </MudTd>
+            }
+        </RowEditingTemplate>
     </MudTable>
     
-    <div style="margin-top: 15px"/>
-    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewColumn">Column</MudButton>
-    <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark">Row</MudButton>
+    @* Create new row and column buttons *@
+    <div style="margin-top: 15px">
+        <MudTooltip Text="Create new column">
+            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewColumn">Column</MudButton>    
+        </MudTooltip>
+        <MudTooltip Text="Create new row">
+            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewRow">Row</MudButton>    
+        </MudTooltip>
+    </div>
     
     
 </MudContainer>
@@ -64,9 +78,14 @@
 
     bool _apiRunning;
 
+    DynamicRow editRowBackup;
+    
+    
+    
     protected override void OnInitialized()
     {
         _apiRunning = _apiService.ApiEnabled;
+        // _dataService.AddRow();
     }
 
     void ToggleServer()
@@ -77,15 +96,14 @@
 
     void NewRow()
     {
-        
+        _dataService.AddRow();
+        _snackbar.Add("Row Added", Severity.Success);
     }
 
     
     // Create a new column
     async Task NewColumn()
     {
-
-        
         var dialog = _dialogService.Show<NewDialog>("New Column Name");
         var result = await dialog.Result;
         
@@ -101,9 +119,23 @@
             _snackbar.Add("Column already exists!", Severity.Error);
 
         }
-        
-        
     }
-    
+
+    void CommitEdit() => _snackbar.Add("Row edit committed");
+
+    void BackupRow(object rowSelectedToEdit)
+    {
+        editRowBackup = rowSelectedToEdit as DynamicRow;
+    }
+
+    void ResetRow(object rowToReset)
+    {
+        rowToReset = editRowBackup;
+    }
+
+    void EditCommitted(object element)
+    {
+        // _snackbar.Add("Changes committed");
+    }
 
 }
