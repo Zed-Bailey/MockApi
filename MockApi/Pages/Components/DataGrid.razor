@@ -28,13 +28,13 @@
     </MudToolBar>
     
     <MudTable Items="@_dataService.Rows" FixedHeader="true" HorizontalScrollbar="true" Height="400px" Hover="true" IsEditRowSwitchingBlocked="false" 
-              OnCommitEditClick="CommitEdit" RowEditPreview="BackupRow" RowEditCancel="ResetRow" RowEditCommit="EditCommitted">
+              OnCommitEditClick="CommitEdit" RowEditPreview="BackupRow" RowEditCancel="ResetRow" RowEditCommit="EditCommitted" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
 
         @* Dynamically generate the columns *@
         <HeaderContent>
             @foreach (var field in _dataService.ColumnNames)
             {
-                <MudTh>@(_textInfo.ToTitleCase(field))</MudTh>
+                <MudTh>@field</MudTh>
             }
         </HeaderContent>
         
@@ -43,13 +43,13 @@
             
             @foreach (var field in _dataService.ColumnNames)
             {
-                <MudTd DataLabel="@(_textInfo.ToTitleCase(field))">@context.ValueFor(field)</MudTd>
+                <MudTd DataLabel="@(field)">@context.ValueFor(field)</MudTd>
             }
         </RowTemplate> 
         <RowEditingTemplate>
             @foreach (var field in _dataService.ColumnNames)
             {
-                <MudTd DataLabel="@(_textInfo.ToTitleCase(field))">
+                <MudTd DataLabel="@(field)">
                     <MudTextField T="string" @bind-Value="@context._dictionary[field]"/>
                 </MudTd>
             }
@@ -74,8 +74,6 @@
 @code
 {
 
-    readonly TextInfo _textInfo = CultureInfo.CurrentCulture.TextInfo;
-
     bool _apiRunning;
 
     DynamicRow editRowBackup;
@@ -85,7 +83,6 @@
     protected override void OnInitialized()
     {
         _apiRunning = _apiService.ApiEnabled;
-        // _dataService.AddRow();
     }
 
     void ToggleServer()

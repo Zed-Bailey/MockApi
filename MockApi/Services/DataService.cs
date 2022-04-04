@@ -14,7 +14,7 @@ public class DataService
     
     public DataService()
     {
-        ColumnNames = new List<string> { "test", "test 2", "omg another column"};
+        ColumnNames = new List<string> { "Column1", "Column2", "oColumn3", "Column4", "Column5", "Column6", "Column7", "Column8", "Column9", "Column10", "Column11", "Column12", "Column13"};
     }
 
     /// <summary>
