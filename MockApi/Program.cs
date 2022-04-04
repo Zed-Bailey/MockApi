@@ -1,4 +1,3 @@
-using System.Web.Http.Results;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MockApi.Data;
@@ -75,7 +74,7 @@ app.Use(async (ctx, next) =>
         apiService.AddLog(ctx.Request);
     }
     
-    await next.Invoke();    
+    await next.Invoke();
 });
 
 app.UseHttpsRedirection();
