@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using MockApi.Data;
 using MockApi.Services;
 using System.Linq;
+using System.Text.Json;
+
 namespace MockApi.Controllers;
 
 [ApiController]
@@ -32,48 +34,54 @@ public class DataController : ControllerBase
     /// </summary>
     /// <param name="rows">rows to serialize</param>
     /// <returns>a json string with the rows serialized in it</returns>
-    private string RowsToJson(IEnumerable<DynamicRow> rows)
+    private string RowsToJson(IEnumerable<DynamicRow_rewrite> rows)
     {
         // defintley a better way to do this, but this is working for now
         var json = "[\n";
-        foreach (var r in rows) json += r.ToJson() + ",\n";
+        foreach (var r in rows) json += r.ToJson() + ",";
         
+        // remove any trailing commas for the formatter
+        json = json.TrimEnd(',');
         json += "]";
-        return json;
-
+ 
+        // pretty formatting the json
+        // https://stackoverflow.com/a/67928315
+        using var jsonDoc = JsonDocument.Parse(json);
+        return JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions{WriteIndented = true});
+ 
     }
         
 
     [HttpGet("select")]
     public IActionResult GetQuery([FromQuery(Name = "limit")] string limit, [FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] object equalTo)
     {
-        // var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. valid options are 'all' to return all rows or an int value > 0"});
-        //
-        // var amount = -1;
-        // if (limit == "all")
-        //     amount = _service.Rows.Count;
-        // else
-        // {
-        //     // try and parse the string into an int, if it fails return a bad request
-        //     if (!int.TryParse(limit, out amount))
-        //     {
-        //         return invalidNumber;
-        //     }
-        //     
-        //     if (amount < 0) return invalidNumber;
-        //     
-        //     // check that the amount value is not larger then the number of rows we have
-        //     if (amount > _service.Rows.Count) amount = _service.Rows.Count;
-        //     
-        // }
-        //
-        // // amount is now a valid value, check to see if the column exists
-        // if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
-        //
-        // var matched = _service.Rows.FindAll(x => x.ValueFor(columnName) == equalTo);
-        //
-        // return Ok(RowsToJson(matched)); 
-        return Ok();
+        var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. valid options are 'all' to return all rows or an int value > 0"});
+        
+        var amount = -1;
+        if (limit == "all")
+            amount = _service.Rows.Count;
+        else
+        {
+            // try and parse the string into an int, if it fails return a bad request
+            if (!int.TryParse(limit, out amount))
+            {
+                return invalidNumber;
+            }
+            // make sure we have a positive number to return
+            if (amount < 0) return invalidNumber;
+            
+            // check that the amount value is not larger then the number of rows we have
+            if (amount > _service.Rows.Count) amount = _service.Rows.Count;
+            
+        }
+        
+        // amount is now a valid value, check to see if the column exists
+        if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
+
+        // todo: this find all method is not correctly finding the rows :(
+        var matched = _service.FindAll(columnName, equalTo as string);
+        Console.WriteLine(matched.Count());
+        return Ok(RowsToJson(matched));
     }
 
     [HttpGet]
@@ -81,8 +89,9 @@ public class DataController : ControllerBase
     {
         if (_service.Rows.Count == 0) return Ok("[]");
         
-        // return all the rows
-        // return Ok(RowsToJson(_service.Rows));
-        return Ok();
+        
+        
+        
+        return Ok(RowsToJson(_service.Rows));
     }
 }
