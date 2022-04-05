@@ -27,8 +27,15 @@ public class DataService
             row.RenameColumns(ColumnNames);
         }
     }
-    
-    
+
+    public IEnumerable<DynamicRow_rewrite> FindAll(string column, string withValue)
+    {
+        var list = Rows.ToList();
+        // find all the rows where there is a matching column
+        return list.FindAll(x => x.ColumnMatches(column, withValue));
+    }
+
+
     /// <summary>
     /// Check to see if a column exists
     /// </summary>

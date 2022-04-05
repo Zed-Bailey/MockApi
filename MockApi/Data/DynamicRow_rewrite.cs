@@ -8,6 +8,30 @@ public class DynamicRow_rewrite
 
     public int Count => Columns.Count;
 
+
+    public bool ColumnMatches(string column, string forValue)
+    {
+        var col = Columns.Find(x => x.Key == column);
+        if (col != null)
+            return col.Value == forValue;
+        
+        return false;
+    }
+    public string ToJson()
+    {
+        string json = "{\n";
+        foreach (var col in Columns)
+        {
+            json += $"\"{col.Key}\":\"{col.Value}\",";
+        }
+
+        // remove trailing commas as the formatter dont like them
+        json = json.TrimEnd(',');
+        
+        json += "}";
+        return json;
+    }
+    
     public bool AddColumn(string name)
     {
         // check if column exists, if so return false
