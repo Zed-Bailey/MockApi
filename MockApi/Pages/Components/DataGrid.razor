@@ -17,6 +17,12 @@
 
         @if (!_apiRunning)
         {
+            <InputFile id="fileImport" OnChange="ImportCsvFile" hidden accept=".csv"/>
+            <MudButton StartIcon="@Icons.Material.Outlined.Upload" Variant="Variant.Filled" Color="Color.Dark" for="fileImport" HtmlTag="label">Import</MudButton>
+            
+            <div style="margin: 10px"/>
+            <MudButton StartIcon="@Icons.Material.Outlined.Download" Variant="Variant.Text" Color="Color.Dark">Export</MudButton>
+            
             <MudSpacer/>
             <MudButton StartIcon="@Icons.Material.Outlined.Power" Variant="Variant.Filled" Color="Color.Primary" OnClick="ToggleServer">Start</MudButton>   
         }
@@ -92,7 +98,7 @@
     bool _apiRunning;
 
     DynamicRow_rewrite editRowBackup;
-    HashSet<DynamicRow_rewrite> selectedItems = new HashSet<DynamicRow_rewrite>();
+    HashSet<DynamicRow_rewrite> selectedItems = new();
 
 
     protected override void OnInitialized()
@@ -117,6 +123,13 @@
         _dataService.DeleteRows(selectedItems);
     }
 
+    void ImportCsvFile(InputFileChangeEventArgs e)
+    {
+        //Todo: load file and convert to rows
+        var file = e.File;
+        var data = file.OpenReadStream();
+
+    }
     
     // Create a new column
     async Task NewColumn()
