@@ -1,22 +1,34 @@
 using System.Dynamic;
 using MudBlazor;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using MockApi.Data;
 
 namespace MockApi.Services;
 
 public class DataService
 {
-    // https://www.oreilly.com/content/building-c-objects-dynamically/
-    public readonly List<string> ColumnNames  = new();
+    public List<string> ColumnNames = new();
 
-    public List<DynamicRow> Rows { get; } = new ();
+    public ObservableCollection<DynamicRow_rewrite> Rows { get; } = new ();
     
     public DataService()
     {
-        ColumnNames = new List<string> { "Column1", "Column2", "oColumn3", "Column4", "Column5", "Column6", "Column7", "Column8", "Column9", "Column10", "Column11", "Column12", "Column13"};
+        ColumnNames = new List<string> { "Column1", "Column2", "Column3"};
+    
     }
+    
 
+    public void UpdateRows()
+    {
+        foreach (var row in Rows)
+        {
+            row.RenameColumns(ColumnNames);
+        }
+    }
+    
+    
     /// <summary>
     /// Check to see if a column exists
     /// </summary>
@@ -36,24 +48,23 @@ public class DataService
     {
         // check if column already exists
         if (ColumnExists(name)) return false;
-        
-        // add column name and update rows
-        ColumnNames.Add(name);
-        foreach (var row in Rows)
-        {
-            row.AddNewColumn(name);
-        }
-
         return true;
     }
     
     public void AddRow()
     {
-        var row = new DynamicRow();
-        row.AddColumnsNoValue(ColumnNames);
+        var row = new DynamicRow_rewrite();
+        row.AddColumnsNoValues(ColumnNames);
         Rows.Add(row);
     }
-    
+
+    public void DeleteRows(IEnumerable<DynamicRow_rewrite> rowsToRemove)
+    {
+        foreach (var d in rowsToRemove)
+        {
+            Rows.Remove(d);
+        }
+    }
     
     public bool ImportFile(string file)
     {
