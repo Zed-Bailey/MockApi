@@ -47,32 +47,33 @@ public class DataController : ControllerBase
     [HttpGet("select")]
     public IActionResult GetQuery([FromQuery(Name = "limit")] string limit, [FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] object equalTo)
     {
-        var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. valid options are 'all' to return all rows or an int value > 0"});
-        
-        var amount = -1;
-        if (limit == "all")
-            amount = _service.Rows.Count;
-        else
-        {
-            // try and parse the string into an int, if it fails return a bad request
-            if (!int.TryParse(limit, out amount))
-            {
-                return invalidNumber;
-            }
-            
-            if (amount < 0) return invalidNumber;
-            
-            // check that the amount value is not larger then the number of rows we have
-            if (amount > _service.Rows.Count) amount = _service.Rows.Count;
-            
-        }
-        
-        // amount is now a valid value, check to see if the column exists
-        if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
-    
-        var matched = _service.Rows.FindAll(x => x.ValueFor(columnName) == equalTo);
-        
-        return Ok(RowsToJson(matched));
+        // var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. valid options are 'all' to return all rows or an int value > 0"});
+        //
+        // var amount = -1;
+        // if (limit == "all")
+        //     amount = _service.Rows.Count;
+        // else
+        // {
+        //     // try and parse the string into an int, if it fails return a bad request
+        //     if (!int.TryParse(limit, out amount))
+        //     {
+        //         return invalidNumber;
+        //     }
+        //     
+        //     if (amount < 0) return invalidNumber;
+        //     
+        //     // check that the amount value is not larger then the number of rows we have
+        //     if (amount > _service.Rows.Count) amount = _service.Rows.Count;
+        //     
+        // }
+        //
+        // // amount is now a valid value, check to see if the column exists
+        // if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
+        //
+        // var matched = _service.Rows.FindAll(x => x.ValueFor(columnName) == equalTo);
+        //
+        // return Ok(RowsToJson(matched)); 
+        return Ok();
     }
 
     [HttpGet]
@@ -81,6 +82,7 @@ public class DataController : ControllerBase
         if (_service.Rows.Count == 0) return Ok("[]");
         
         // return all the rows
-        return Ok(RowsToJson(_service.Rows));
+        // return Ok(RowsToJson(_service.Rows));
+        return Ok();
     }
 }
