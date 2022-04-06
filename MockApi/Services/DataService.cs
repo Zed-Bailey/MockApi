@@ -55,6 +55,11 @@ public class DataService
     {
         // check if column already exists
         if (ColumnExists(name)) return false;
+        ColumnNames.Add(name);
+        foreach (var row in Rows)
+        {
+            row.AddColumn(name);
+        }
         return true;
     }
     

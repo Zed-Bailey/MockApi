@@ -95,8 +95,7 @@ public class DataController : ControllerBase
         Console.WriteLine($"DEBUG :: Finding all rows where {columnName} == {equalTo}");
         // todo: this find all method is not correctly finding the rows :(
         var matched = _service.FindAll(columnName, equalTo);
-        Console.WriteLine(matched.Count());
-        return Ok(RowsToJson(matched));
+        return Ok(RowsToJson(matched.Take(amount)));
     }
 
     [HttpGet]
