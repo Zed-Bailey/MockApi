@@ -11,7 +11,7 @@ public class DataService
 {
     public List<string> ColumnNames = new();
 
-    public ObservableCollection<DynamicRow_rewrite> Rows { get; } = new ();
+    public ObservableCollection<DynamicRow> Rows { get; } = new ();
     
     public DataService()
     {
@@ -28,7 +28,7 @@ public class DataService
         }
     }
 
-    public IEnumerable<DynamicRow_rewrite> FindAll(string column, string withValue)
+    public IEnumerable<DynamicRow> FindAll(string column, string withValue)
     {
         var list = Rows.ToList();
         // find all the rows where there is a matching column
@@ -60,12 +60,23 @@ public class DataService
     
     public void AddRow()
     {
-        var row = new DynamicRow_rewrite();
+        var row = new DynamicRow();
         row.AddColumnsNoValues(ColumnNames);
+
+        // assign each row an ID value
+        if (Rows.Count > 0)
+        {
+            // get last rows id and increment it by 1
+            row.RowID = Rows.Last().RowID;
+            row.RowID++;
+        }
+        else
+            row.RowID = 0;
+        
         Rows.Add(row);
     }
 
-    public void DeleteRows(IEnumerable<DynamicRow_rewrite> rowsToRemove)
+    public void DeleteRows(IEnumerable<DynamicRow> rowsToRemove)
     {
         foreach (var d in rowsToRemove)
         {
