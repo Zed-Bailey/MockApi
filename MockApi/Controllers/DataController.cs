@@ -34,7 +34,7 @@ public class DataController : ControllerBase
     /// </summary>
     /// <param name="rows">rows to serialize</param>
     /// <returns>a json string with the rows serialized in it</returns>
-    private string RowsToJson(IEnumerable<DynamicRow_rewrite> rows)
+    private string RowsToJson(IEnumerable<DynamicRow> rows)
     {
         // defintley a better way to do this, but this is working for now
         var json = "[\n";
@@ -43,17 +43,32 @@ public class DataController : ControllerBase
         // remove any trailing commas for the formatter
         json = json.TrimEnd(',');
         json += "]";
- 
+        
+        return FormatJson(json);
+    }
+
+    public string FormatJson(string json)
+    {
         // pretty formatting the json
         // https://stackoverflow.com/a/67928315
         using var jsonDoc = JsonDocument.Parse(json);
-        return JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions{WriteIndented = true});
- 
+        return JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions{WriteIndented = true}); 
+    }
+
+    [HttpGet("{id}")]
+    public IActionResult GetRowWithID(string id)
+    {
+        var noMatchingIDResponse = BadRequest(new {error = $"No row with ID == {id} could be found"});
+
+        var row = _service.Rows.FirstOrDefault(x => x.RowID.ToString() == id);
+        if (row is null) return noMatchingIDResponse;
+        var json = row.ToJson();
+        return Ok(FormatJson(json));
     }
         
 
     [HttpGet("select")]
-    public IActionResult GetQuery([FromQuery(Name = "limit")] string limit, [FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] object equalTo)
+    public IActionResult GetQuery([FromQuery(Name = "limit")] string limit, [FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] string equalTo)
     {
         var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. valid options are 'all' to return all rows or an int value > 0"});
         
@@ -77,9 +92,9 @@ public class DataController : ControllerBase
         
         // amount is now a valid value, check to see if the column exists
         if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
-
+        Console.WriteLine($"DEBUG :: Finding all rows where {columnName} == {equalTo}");
         // todo: this find all method is not correctly finding the rows :(
-        var matched = _service.FindAll(columnName, equalTo as string);
+        var matched = _service.FindAll(columnName, equalTo);
         Console.WriteLine(matched.Count());
         return Ok(RowsToJson(matched));
     }
