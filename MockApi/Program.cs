@@ -69,13 +69,15 @@ app.Use(async (ctx, next) =>
             await ctx.Response.WriteAsync("Api not enabled");
             return;
         }
-       
-        // add a log
-        apiService.AddLog(ctx.Request);
+        
+  
     }
-    
     await next.Invoke();
 });
+
+// use custom api logging middleware
+app.UseLoggerMiddleware();
+
 
 app.UseHttpsRedirection();
 
