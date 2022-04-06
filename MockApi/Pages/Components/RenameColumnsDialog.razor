@@ -1,0 +1,33 @@
+<MudDialog>
+    @* <TitleContent> *@
+    @*     <MudIcon Icon="@Icons.Material.Filled.Create"/> *@
+    @* </TitleContent> *@
+    <DialogContent>
+        <MudStack>
+            @for (var i =0; i< ColumnNames.Count; i++)
+            {
+                var iCopy = i;
+                <MudTextField @bind-Value="@ColumnNames[iCopy]" Variant="Variant.Outlined"></MudTextField>
+            }
+            
+        </MudStack>
+       
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public List<string> ColumnNames { get; set; }
+    
+    
+    // close dialog and return result
+    void Submit() => MudDialog.Close(DialogResult.Ok(ColumnNames));
+    
+
+    void Cancel() => MudDialog.Cancel();
+}

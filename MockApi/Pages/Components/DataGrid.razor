@@ -4,6 +4,7 @@
 @using System.Globalization
 @using MockApi.Services
 @using System.Configuration
+@using System.Collections.ObjectModel
 @inject DataService _dataService
 @inject ApiService _apiService
 @inject ISnackbar _snackbar
@@ -16,6 +17,12 @@
 
         @if (!_apiRunning)
         {
+            <InputFile id="fileImport" OnChange="ImportCsvFile" hidden accept=".csv"/>
+            <MudButton StartIcon="@Icons.Material.Outlined.Upload" Variant="Variant.Filled" Color="Color.Dark" for="fileImport" HtmlTag="label">Import</MudButton>
+            
+            <div style="margin: 10px"/>
+            <MudButton StartIcon="@Icons.Material.Outlined.Download" Variant="Variant.Text" Color="Color.Dark">Export</MudButton>
+            
             <MudSpacer/>
             <MudButton StartIcon="@Icons.Material.Outlined.Power" Variant="Variant.Filled" Color="Color.Primary" OnClick="ToggleServer">Start</MudButton>   
         }
@@ -28,7 +35,8 @@
     </MudToolBar>
     
     <MudTable Items="@_dataService.Rows" FixedHeader="true" HorizontalScrollbar="true" Height="400px" Hover="true" IsEditRowSwitchingBlocked="false" 
-              OnCommitEditClick="CommitEdit" RowEditPreview="BackupRow" RowEditCancel="ResetRow" RowEditCommit="EditCommitted" Breakpoint="Breakpoint.Sm" Striped="true" Bordered="true">
+              OnCommitEditClick="CommitEdit" RowEditPreview="BackupRow" RowEditCancel="ResetRow" RowEditCommit="EditCommitted" Breakpoint="Breakpoint.Sm" 
+              Striped="true" Bordered="true" MultiSelection="true" @bind-SelectedItems="selectedItems">
 
         @* Dynamically generate the columns *@
         <HeaderContent>
@@ -38,33 +46,46 @@
             }
         </HeaderContent>
         
+        
         @* Dynamically generate the rows *@
         <RowTemplate>
             
-            @foreach (var field in _dataService.ColumnNames)
+            @foreach (var column in context.Columns)
             {
-                <MudTd DataLabel="@(field)">@context.ValueFor(field)</MudTd>
+                <MudTd DataLabel="@(column.Key)">@(column.Value ?? "")</MudTd>
             }
         </RowTemplate> 
+        
+        @* dynamically generate edit templates for the rows and bind the values together *@
         <RowEditingTemplate>
-            @foreach (var field in _dataService.ColumnNames)
+            @foreach (var t in context.Columns)
             {
-                <MudTd DataLabel="@(field)">
-                    <MudTextField T="string" @bind-Value="@context._dictionary[field]"/>
-                </MudTd>
+                <MudTd DataLabel="@(t.Key)"> 
+                     <MudTextField T="string" @bind-Value="@t.Value"/> 
+                 </MudTd> 
             }
         </RowEditingTemplate>
     </MudTable>
     
     @* Create new row and column buttons *@
-    <div style="margin-top: 15px">
+    <MudStack Row="true" Style="margin-top: 20px">
         <MudTooltip Text="Create new column">
             <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewColumn">Column</MudButton>    
         </MudTooltip>
+        
+          <MudTooltip Text="Edit columns">
+                <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Color="Color.Dark" OnClick="EditColumnNames">Edit Columns</MudButton>    
+        </MudTooltip>
+        
         <MudTooltip Text="Create new row">
             <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewRow">Row</MudButton>    
         </MudTooltip>
-    </div>
+        
+        <MudTooltip Text="Delete rows">
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteRows" Disabled="!(selectedItems.Count > 0)">Delete Rows</MudButton>    
+        </MudTooltip>
+        
+    </MudStack>
     
     
 </MudContainer>
@@ -77,9 +98,9 @@
     bool _apiRunning;
 
     DynamicRow editRowBackup;
-    
-    
-    
+    HashSet<DynamicRow> selectedItems = new();
+
+
     protected override void OnInitialized()
     {
         _apiRunning = _apiService.ApiEnabled;
@@ -97,6 +118,19 @@
         _snackbar.Add("Row Added", Severity.Success);
     }
 
+    void DeleteRows()
+    {
+        _dataService.DeleteRows(selectedItems);
+        selectedItems.Clear();
+    }
+
+    void ImportCsvFile(InputFileChangeEventArgs e)
+    {
+        //Todo: load file and convert to rows
+        var file = e.File;
+        var data = file.OpenReadStream();
+
+    }
     
     // Create a new column
     async Task NewColumn()
@@ -117,6 +151,23 @@
 
         }
     }
+
+    async Task EditColumnNames()
+    {
+        var dialogParams = new DialogParameters();
+        dialogParams.Add("ColumnNames", _dataService.ColumnNames.ToList());
+        
+        var dialog = _dialogService.Show<RenameColumnsDialog>("Rename Columns", dialogParams);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            var data = result.Data as List<string>;
+            _dataService.ColumnNames = data;
+            _dataService.UpdateRows();
+        }
+        
+    }
+    
 
     void CommitEdit() => _snackbar.Add("Row edit committed");
 

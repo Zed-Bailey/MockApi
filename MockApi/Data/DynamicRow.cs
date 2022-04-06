@@ -1,77 +1,75 @@
-using System.Dynamic;
-using System.Text.Json;
+using System.Collections.ObjectModel;
 
 namespace MockApi.Data;
 
-// https://docs.microsoft.com/en-us/dotnet/api/system.dynamic.dynamicobject?view=net-6.0
-//TODO: clean this class up to just use the dictionary as i am not using most of the features that the dynamic object provides
-
 public class DynamicRow
 {
-    public Dictionary<string, string?> _dictionary = new();
-    
-    // This property returns the number of elements
-    // in the inner dictionary.
-    public int Count => _dictionary.Count;
+    public List<Column> Columns = new();
 
-    /// <summary>
-    /// Return the value for the passed in column key
-    /// </summary>
-    /// <param name="column">Name of column</param>
-    /// <returns>The value in the column, null if no value is in column</returns>
-    public string? ValueFor(string column)
+    // public int Count => Columns.Count;
+    public int RowID;
+
+    public bool ColumnMatches(string column, string forValue)
     {
-        return  _dictionary[column];
-    }
+        var col = Columns.Find(x => x.Key == column);
+        if (col != null)
+        {
+            var match = col.Value == forValue;
+            Console.WriteLine("Found column match!");
+            return match;
+        }
 
+        return false;
+    }
     public string ToJson()
     {
-        return JsonSerializer.Serialize(_dictionary);
+        var json = $"{{ \"id\" : \"{RowID}\",\n";
+        foreach (var col in Columns)
+        {
+            json += $"\"{col.Key}\":\"{col.Value}\",";
+        }
+
+        // remove trailing commas as the formatter dont like them
+        json = json.TrimEnd(',');
+        
+        json += "}";
+        return json;
+    }
+    
+    public bool AddColumn(string name)
+    {
+        // check if column exists, if so return false
+        if (Columns.Any(x => x.Key == name)) return false;
+        
+        // add column
+        Columns.Add(new Column(name));
+        return true;
     }
 
-    /// <summary>
-    /// Adds a new member to the row with a default value
-    /// </summary>
-    /// <param name="name">The name of the new member to add</param>
-    public void AddNewColumn(string name)
+    public void RenameColumns(IEnumerable<string> newNames)
     {
-        _dictionary[name] = null;
-    }
-
-    /// <summary>
-    /// Remove a column from the dictionary, this will also remove the associated value with it
-    /// </summary>
-    /// <param name="name">Name of the column to remove</param>
-    public void RemoveColumn(string name)
-    {
-        _dictionary.Remove(name);
-    }
-
-    /// <summary>
-    /// Updates a column name with a new value
-    /// </summary>
-    /// <param name="oldName">The old name</param>
-    /// <param name="newName">The new name</param>
-    public void EditColumn(string oldName, string newName)
-    {
-        var valueAtOldKey = _dictionary[oldName];
+        // cast IEnumerable to string so i can use indexes on it
+        var names = newNames.ToList();
+        
+        for (int i = 0; i < newNames.Count(); i++)
+        {
+            Columns[i].Key = names[i];
+        }
         
     }
-    /// <summary>
-    /// Initializes the row with all the members required with null
-    /// </summary>
-    /// <param name="keys">A List of key names to add</param>
-    public void AddColumnsNoValue(IEnumerable<string> keys)
-    {
-        foreach (var key in keys)
-        {
-            _dictionary[key] = null;
-        }
-    }
 
-    public bool Update(string key, string value)
+    public bool DeleteColumn(string name)
     {
-        _dictionary[key] = value;
-        return true;
+        var colToDelete = Columns.First(x => x.Key == name);
+        return Columns.Remove(colToDelete);
+    }
+    
+
+    public void AddColumnsNoValues(IEnumerable<string> columnNames)
+    {
+        foreach (var name in columnNames)
+        {
+            Columns.Add(new Column(name));
+        }
     }
 }
