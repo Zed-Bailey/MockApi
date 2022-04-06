@@ -8,20 +8,22 @@
     <div style="height: 500px; overflow: auto">
         @if (_service.Events.Count > 0)
         {
-            <MudExpansionPanels>
+            <MudExpansionPanels DisableBorders="true" Elevation="0"> 
                 @foreach (var apiEvent in _service.Events)
                 {
                     <MudExpansionPanel>
                         <TitleContent>
-                            <div class="d-flex">
-                                <MudChip Variant="Variant.Filled" Color="Color.Info">@apiEvent.Method</MudChip>
-                                <MudText>@apiEvent.Query</MudText>
-                            </div>
+                            <MudText Inline="true">
+                                <MudChip Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">@apiEvent.Method</MudChip>
+                                <i>@apiEvent.Endpoint</i>
+                            </MudText>
                         </TitleContent>
                         <ChildContent>
                             <MudText> Method: <strong>@apiEvent.Method</strong></MudText>
                             <MudText> Time: <strong>@apiEvent.QueryTime</strong></MudText>
                             <MudText> Query: <strong>@apiEvent.Query</strong></MudText>
+                            <MudText> Status Code: <strong>@apiEvent.ResponseCode</strong></MudText>
+                            <MudText> Response: @apiEvent.ResponseJson</MudText>
                         </ChildContent>
                     </MudExpansionPanel>
 
