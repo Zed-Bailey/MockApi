@@ -6,4 +6,6 @@ public class ApiLog
     public string Query { get; init; }
     public string Method { get; init; }
     public DateTime QueryTime { get; init; }
+    public int ResponseCode { get; set; }
+    public string ResponseJson { get; set; }
 }

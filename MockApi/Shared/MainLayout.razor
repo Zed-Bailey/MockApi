@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 <PageTitle>MockApi</PageTitle>
-<MudThemeProvider/>
+<MudThemeProvider IsDarkMode="true"/>
 
 <MudDialogProvider
     FullWidth="true"
@@ -11,11 +11,15 @@
     CloseOnEscapeKey="true"
 />
 
-<MudSnackbarProvider
-    />
+<MudSnackbarProvider/>
 
 
 <MudLayout>
+    <MudAppBar>
+        <MudSpacer/>
+        <MudText Align="Align.Center" Typo="Typo.h4">MockApi</MudText>
+        <MudSpacer/>
+    </MudAppBar>
     <MudMainContent>
         @Body
     </MudMainContent>

@@ -1,21 +1,40 @@
 using System.Dynamic;
 using MudBlazor;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using MockApi.Data;
 
 namespace MockApi.Services;
 
 public class DataService
 {
-    // https://www.oreilly.com/content/building-c-objects-dynamically/
-    public readonly List<string> ColumnNames  = new();
+    public List<string> ColumnNames = new();
 
-    public List<DynamicRow> Rows { get; } = new ();
+    public ObservableCollection<DynamicRow> Rows { get; } = new ();
     
     public DataService()
     {
-        ColumnNames = new List<string> { "test", "test 2", "omg another column"};
+        ColumnNames = new List<string> { "Column1", "Column2", "Column3"};
+    
     }
+    
+
+    public void UpdateRows()
+    {
+        foreach (var row in Rows)
+        {
+            row.RenameColumns(ColumnNames);
+        }
+    }
+
+    public IEnumerable<DynamicRow> FindAll(string column, string withValue)
+    {
+        var list = Rows.ToList();
+        // find all the rows where there is a matching column
+        return list.FindAll(x => x.ColumnMatches(column, withValue));
+    }
+
 
     /// <summary>
     /// Check to see if a column exists
@@ -36,24 +55,39 @@ public class DataService
     {
         // check if column already exists
         if (ColumnExists(name)) return false;
-        
-        // add column name and update rows
         ColumnNames.Add(name);
         foreach (var row in Rows)
         {
-            row.AddNewMember(name);
+            row.AddColumn(name);
         }
-
         return true;
     }
     
     public void AddRow()
     {
         var row = new DynamicRow();
-        row.AddMembersNoValue(ColumnNames);
+        row.AddColumnsNoValues(ColumnNames);
+
+        // assign each row an ID value
+        if (Rows.Count > 0)
+        {
+            // get last rows id and increment it by 1
+            row.RowID = Rows.Last().RowID;
+            row.RowID++;
+        }
+        else
+            row.RowID = 0;
+        
         Rows.Add(row);
     }
-    
+
+    public void DeleteRows(IEnumerable<DynamicRow> rowsToRemove)
+    {
+        foreach (var d in rowsToRemove)
+        {
+            Rows.Remove(d);
+        }
+    }
     
     public bool ImportFile(string file)
     {

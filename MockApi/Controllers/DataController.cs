@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using MockApi.Data;
 using MockApi.Services;
 using System.Linq;
+using System.Text.Json;
+
 namespace MockApi.Controllers;
 
 [ApiController]
@@ -36,16 +38,37 @@ public class DataController : ControllerBase
     {
         // defintley a better way to do this, but this is working for now
         var json = "[\n";
-        foreach (var r in rows) json += r.ToJson() + ",\n";
+        foreach (var r in rows) json += r.ToJson() + ",";
         
+        // remove any trailing commas for the formatter
+        json = json.TrimEnd(',');
         json += "]";
-        return json;
+        
+        return FormatJson(json);
+    }
 
+    public string FormatJson(string json)
+    {
+        // pretty formatting the json
+        // https://stackoverflow.com/a/67928315
+        using var jsonDoc = JsonDocument.Parse(json);
+        return JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions{WriteIndented = true}); 
+    }
+
+    [HttpGet("{id}")]
+    public IActionResult GetRowWithID(string id)
+    {
+        var noMatchingIDResponse = BadRequest(new {error = $"No row with ID == {id} could be found"});
+
+        var row = _service.Rows.FirstOrDefault(x => x.RowID.ToString() == id);
+        if (row is null) return noMatchingIDResponse;
+        var json = row.ToJson();
+        return Ok(FormatJson(json));
     }
         
 
     [HttpGet("select")]
-    public IActionResult GetQuery([FromQuery(Name = "limit")] string limit, [FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] object equalTo)
+    public IActionResult GetQuery([FromQuery(Name = "limit")] string limit, [FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] string equalTo)
     {
         var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. valid options are 'all' to return all rows or an int value > 0"});
         
@@ -59,7 +82,7 @@ public class DataController : ControllerBase
             {
                 return invalidNumber;
             }
-            
+            // make sure we have a positive number to return
             if (amount < 0) return invalidNumber;
             
             // check that the amount value is not larger then the number of rows we have
@@ -69,10 +92,10 @@ public class DataController : ControllerBase
         
         // amount is now a valid value, check to see if the column exists
         if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
-    
-        var matched = _service.Rows.FindAll(x => x.ValueFor(columnName) == equalTo);
-        
-        return Ok(RowsToJson(matched));
+        Console.WriteLine($"DEBUG :: Finding all rows where {columnName} == {equalTo}");
+        // todo: this find all method is not correctly finding the rows :(
+        var matched = _service.FindAll(columnName, equalTo);
+        return Ok(RowsToJson(matched.Take(amount)));
     }
 
     [HttpGet]
@@ -80,7 +103,9 @@ public class DataController : ControllerBase
     {
         if (_service.Rows.Count == 0) return Ok("[]");
         
-        // return all the rows
+        
+        
+        
         return Ok(RowsToJson(_service.Rows));
     }
 }
