@@ -24,7 +24,7 @@
             <MudButton StartIcon="@Icons.Material.Outlined.Download" Variant="Variant.Text" Color="Color.Dark">Export</MudButton>
             
             <MudSpacer/>
-            <MudButton StartIcon="@Icons.Material.Outlined.Power" Variant="Variant.Filled" Color="Color.Primary" OnClick="ToggleServer">Start</MudButton>   
+            <MudButton StartIcon="@Icons.Material.Outlined.Power" Variant="Variant.Filled" Color="Color.Info" OnClick="ToggleServer">Start</MudButton>   
         }
         else
         {
@@ -36,7 +36,7 @@
     
     <MudTable Items="@_dataService.Rows" FixedHeader="true" HorizontalScrollbar="true" Height="400px" Hover="true" IsEditRowSwitchingBlocked="false" 
               OnCommitEditClick="CommitEdit" RowEditPreview="BackupRow" RowEditCancel="ResetRow" RowEditCommit="EditCommitted" Breakpoint="Breakpoint.Sm" 
-              Striped="true" Bordered="true" MultiSelection="true" @bind-SelectedItems="selectedItems">
+              Striped="true" Bordered="true" MultiSelection="true" @bind-SelectedItems="_selectedItems">
 
         @* Dynamically generate the columns *@
         <HeaderContent>
@@ -68,23 +68,27 @@
     </MudTable>
     
     @* Create new row and column buttons *@
-    <MudStack Row="true" Style="margin-top: 20px">
-        <MudTooltip Text="Create new column">
-            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewColumn">Column</MudButton>    
-        </MudTooltip>
-        
-          <MudTooltip Text="Edit columns">
-                <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Color="Color.Dark" OnClick="EditColumnNames">Edit Columns</MudButton>    
-        </MudTooltip>
-        
-        <MudTooltip Text="Create new row">
-            <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Dark" OnClick="NewRow">Row</MudButton>    
-        </MudTooltip>
-        
-        <MudTooltip Text="Delete rows">
-            <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteRows" Disabled="!(selectedItems.Count > 0)">Delete Rows</MudButton>    
-        </MudTooltip>
-        
+    <MudStack Style="margin-top: 30px">
+        <MudStack Row="true">
+            <MudTooltip Text="Create new column">
+                <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" OnClick="NewColumn">Column</MudButton>
+            </MudTooltip>
+    
+            <MudTooltip Text="Edit columns">
+                <MudButton StartIcon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Color="Color.Secondary" OnClick="EditColumnNames">Edit Columns</MudButton>
+            </MudTooltip>
+        </MudStack>
+        <div style="margin: 5px" ></div>
+        <MudStack Row="true">
+            <MudTooltip Text="Create new row">
+                <MudButton StartIcon="@Icons.Material.Filled.Add" Variant="Variant.Filled" Color="Color.Primary" OnClick="NewRow">Row</MudButton>
+            </MudTooltip>
+    
+            <MudTooltip Text="Delete rows">
+                <MudButton StartIcon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Secondary" OnClick="DeleteRows" Disabled="!(_selectedItems.Count > 0)">Delete Rows</MudButton>
+            </MudTooltip>
+        </MudStack>
+
     </MudStack>
     
     
@@ -97,8 +101,8 @@
 
     bool _apiRunning;
 
-    DynamicRow editRowBackup;
-    HashSet<DynamicRow> selectedItems = new();
+    DynamicRow _editRowBackup;
+    HashSet<DynamicRow> _selectedItems = new();
 
 
     protected override void OnInitialized()
@@ -120,8 +124,8 @@
 
     void DeleteRows()
     {
-        _dataService.DeleteRows(selectedItems);
-        selectedItems.Clear();
+        _dataService.DeleteRows(_selectedItems);
+        _selectedItems.Clear();
     }
 
     void ImportCsvFile(InputFileChangeEventArgs e)
@@ -173,12 +177,12 @@
 
     void BackupRow(object rowSelectedToEdit)
     {
-        editRowBackup = rowSelectedToEdit as DynamicRow;
+        _editRowBackup = rowSelectedToEdit as DynamicRow;
     }
 
     void ResetRow(object rowToReset)
     {
-        rowToReset = editRowBackup;
+        rowToReset = _editRowBackup;
     }
 
     void EditCommitted(object element)
