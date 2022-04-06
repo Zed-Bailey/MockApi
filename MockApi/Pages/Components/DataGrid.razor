@@ -97,8 +97,8 @@
 
     bool _apiRunning;
 
-    DynamicRow_rewrite editRowBackup;
-    HashSet<DynamicRow_rewrite> selectedItems = new();
+    DynamicRow editRowBackup;
+    HashSet<DynamicRow> selectedItems = new();
 
 
     protected override void OnInitialized()
@@ -121,6 +121,7 @@
     void DeleteRows()
     {
         _dataService.DeleteRows(selectedItems);
+        selectedItems.Clear();
     }
 
     void ImportCsvFile(InputFileChangeEventArgs e)
@@ -172,7 +173,7 @@
 
     void BackupRow(object rowSelectedToEdit)
     {
-        editRowBackup = rowSelectedToEdit as DynamicRow_rewrite;
+        editRowBackup = rowSelectedToEdit as DynamicRow;
     }
 
     void ResetRow(object rowToReset)
