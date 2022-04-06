@@ -14,7 +14,7 @@
                     <MudExpansionPanel>
                         <TitleContent>
                             <MudText Inline="true">
-                                <MudChip Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">@apiEvent.Method</MudChip>
+                                <MudChip Variant="Variant.Filled" Color="@(apiEvent.ResponseCode is >= 400 and <= 500 ? Color.Error : Color.Success)" Size="Size.Small">@apiEvent.Method</MudChip>
                                 <i>@apiEvent.Endpoint</i>
                             </MudText>
                         </TitleContent>
@@ -57,7 +57,7 @@
     }
 
     // force ui refresh when the ObservableCollection updates
-    void RefreshLogs(object sender, NotifyCollectionChangedEventArgs e) => InvokeAsync(StateHasChanged);
+    void RefreshLogs(object? sender, NotifyCollectionChangedEventArgs e) => InvokeAsync(StateHasChanged);
     
 }
 
