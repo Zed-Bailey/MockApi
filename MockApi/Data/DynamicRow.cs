@@ -2,24 +2,28 @@ using System.Collections.ObjectModel;
 
 namespace MockApi.Data;
 
-public class DynamicRow_rewrite
+public class DynamicRow
 {
     public List<Column> Columns = new();
 
-    public int Count => Columns.Count;
-
+    // public int Count => Columns.Count;
+    public int RowID;
 
     public bool ColumnMatches(string column, string forValue)
     {
         var col = Columns.Find(x => x.Key == column);
         if (col != null)
-            return col.Value == forValue;
-        
+        {
+            var match = col.Value == forValue;
+            Console.WriteLine("Found column match!");
+            return match;
+        }
+
         return false;
     }
     public string ToJson()
     {
-        string json = "{\n";
+        var json = $"{{ \"id\" : \"{RowID}\",\n";
         foreach (var col in Columns)
         {
             json += $"\"{col.Key}\":\"{col.Value}\",";
