@@ -69,8 +69,6 @@ app.Use(async (ctx, next) =>
             await ctx.Response.WriteAsync("Api not enabled");
             return;
         }
-        
-  
     }
     await next.Invoke();
 });

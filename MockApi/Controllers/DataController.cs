@@ -47,6 +47,7 @@ public class DataController : ControllerBase
         return FormatJson(json);
     }
 
+
     public string FormatJson(string json)
     {
         // pretty formatting the json
@@ -55,10 +56,12 @@ public class DataController : ControllerBase
         return JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions{WriteIndented = true}); 
     }
 
+    // GET /api/data/:id
     [HttpGet("{id}")]
     public IActionResult GetRowWithID(string id)
     {
         var noMatchingIDResponse = BadRequest(new {error = $"No row with ID == {id} could be found"});
+
 
         var row = _service.Rows.FirstOrDefault(x => x.RowID.ToString() == id);
         if (row is null) return noMatchingIDResponse;
@@ -67,44 +70,49 @@ public class DataController : ControllerBase
     }
         
 
+    // GET /api/data/select?where={columnName}&is={value}
+    // optional parameter limit
     [HttpGet("select")]
-    public IActionResult GetQuery([FromQuery(Name = "limit")] string limit, [FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] string equalTo)
+
+    public IActionResult GetQuery([FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] string equalTo, int? limit = null)
     {
-        var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. valid options are 'all' to return all rows or an int value > 0"});
+        var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. Has to be an int value > 0"});
         
-        var amount = -1;
-        if (limit == "all")
-            amount = _service.Rows.Count;
-        else
-        {
-            // try and parse the string into an int, if it fails return a bad request
-            if (!int.TryParse(limit, out amount))
-            {
-                return invalidNumber;
-            }
-            // make sure we have a positive number to return
-            if (amount < 0) return invalidNumber;
-            
-            // check that the amount value is not larger then the number of rows we have
-            if (amount > _service.Rows.Count) amount = _service.Rows.Count;
-            
-        }
+
         
+        // check if a value was passed in
+        if (limit is null)
+            limit = _service.Rows.Count;
+        
+        // make sure we have a positive number to return
+        if (limit < 0)
+            return invalidNumber;
+        
+        // check that the amount value is not larger then the number of rows we have
+        if (limit > _service.Rows.Count)
+            limit = _service.Rows.Count;
+            
+     
+
         // amount is now a valid value, check to see if the column exists
         if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
+
+        
         Console.WriteLine($"DEBUG :: Finding all rows where {columnName} == {equalTo}");
-        // todo: this find all method is not correctly finding the rows :(
-        var matched = _service.FindAll(columnName, equalTo);
-        return Ok(RowsToJson(matched.Take(amount)));
+        
+        
+        var matched = _service.FindAll(columnName, equalTo).Take(limit.Value);
+        
+        return Ok(RowsToJson(matched));
+
     }
 
+    // GET /api/data/
     [HttpGet]
     public IActionResult GetAllRows()
     {
-        if (_service.Rows.Count == 0) return Ok("[]");
-        
-        
-        
+        if (_service.Rows.Count == 0) 
+            return Ok("[]");
         
         return Ok(RowsToJson(_service.Rows));
     }
