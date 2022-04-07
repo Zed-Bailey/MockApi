@@ -47,6 +47,7 @@ public class DataController : ControllerBase
         return FormatJson(json);
     }
 
+
     public string FormatJson(string json)
     {
         // pretty formatting the json
@@ -61,6 +62,7 @@ public class DataController : ControllerBase
     {
         var noMatchingIDResponse = BadRequest(new {error = $"No row with ID == {id} could be found"});
 
+
         var row = _service.Rows.FirstOrDefault(x => x.RowID.ToString() == id);
         if (row is null) return noMatchingIDResponse;
         var json = row.ToJson();
@@ -71,10 +73,12 @@ public class DataController : ControllerBase
     // GET /api/data/select?where={columnName}&is={value}
     // optional parameter limit
     [HttpGet("select")]
+
     public IActionResult GetQuery([FromQuery(Name = "where")] string columnName, [FromQuery(Name = "is")] string equalTo, int? limit = null)
     {
         var invalidNumber = BadRequest(new {error = "invalid limit amount passed in. Has to be an int value > 0"});
         
+
         
         // check if a value was passed in
         if (limit is null)
@@ -88,10 +92,11 @@ public class DataController : ControllerBase
         if (limit > _service.Rows.Count)
             limit = _service.Rows.Count;
             
-        
+     
 
         // amount is now a valid value, check to see if the column exists
         if (!_service.ColumnExists(columnName))  return BadRequest(new {error = $"The column with name {columnName} does not exist!"});
+
         
         Console.WriteLine($"DEBUG :: Finding all rows where {columnName} == {equalTo}");
         
@@ -99,6 +104,7 @@ public class DataController : ControllerBase
         var matched = _service.FindAll(columnName, equalTo).Take(limit.Value);
         
         return Ok(RowsToJson(matched));
+
     }
 
     // GET /api/data/
