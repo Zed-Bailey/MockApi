@@ -1,8 +1,4 @@
-using System.Dynamic;
-using MudBlazor;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using MockApi.Data;
 
 namespace MockApi.Services;
@@ -16,11 +12,14 @@ public class DataService
     public DataService()
     {
         ColumnNames = new List<string> { "Column1", "Column2", "Column3"};
-    
     }
     
 
-    public void UpdateRows()
+    
+    /// <summary>
+    /// Updates all the columns in the row with the new column values
+    /// </summary>
+    public void UpdateRowColumns()
     {
         foreach (var row in Rows)
         {
@@ -28,6 +27,12 @@ public class DataService
         }
     }
 
+    /// <summary>
+    /// Finds all rows that match the column/value pair
+    /// </summary>
+    /// <param name="column">name of column to check</param>
+    /// <param name="withValue">value to check column against</param>
+    /// <returns>an IEnumerable containing all rows that match</returns>
     public IEnumerable<DynamicRow> FindAll(string column, string withValue)
     {
         var list = Rows.ToList();

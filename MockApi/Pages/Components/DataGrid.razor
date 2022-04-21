@@ -5,6 +5,7 @@
 @using MockApi.Services
 @using System.Configuration
 @using System.Collections.ObjectModel
+@using System.Collections.Specialized
 @inject DataService _dataService
 @inject ApiService _apiService
 @inject ISnackbar _snackbar
@@ -20,7 +21,7 @@
             <InputFile id="fileImport" OnChange="ImportCsvFile" hidden accept=".csv"/>
             <MudButton StartIcon="@Icons.Material.Outlined.Upload" Variant="Variant.Filled" Color="Color.Dark" for="fileImport" HtmlTag="label">Import</MudButton>
             
-            <div style="margin: 10px"/>
+            <div style="margin: 10px"></div>
             <MudButton StartIcon="@Icons.Material.Outlined.Download" Variant="Variant.Text" Color="Color.Dark">Export</MudButton>
             
             <MudSpacer/>
@@ -100,7 +101,6 @@
 {
 
     bool _apiRunning;
-
     DynamicRow _editRowBackup;
     HashSet<DynamicRow> _selectedItems = new();
 
@@ -108,7 +108,10 @@
     protected override void OnInitialized()
     {
         _apiRunning = _apiService.ApiEnabled;
+        _dataService.Rows.CollectionChanged += RefreshUi;
     }
+    
+    void RefreshUi(object? sender, NotifyCollectionChangedEventArgs e) => InvokeAsync(StateHasChanged);
 
     void ToggleServer()
     {
@@ -133,7 +136,6 @@
         //Todo: load file and convert to rows
         var file = e.File;
         var data = file.OpenReadStream();
-
     }
     
     // Create a new column
@@ -167,7 +169,7 @@
         {
             var data = result.Data as List<string>;
             _dataService.ColumnNames = data;
-            _dataService.UpdateRows();
+            _dataService.UpdateRowColumns();
         }
         
     }
