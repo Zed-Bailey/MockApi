@@ -1,13 +1,17 @@
+@using MockApi.Services
+@inject DataService _service;
+
 <MudDialog>
-    @* <TitleContent> *@
-    @*     <MudIcon Icon="@Icons.Material.Filled.Create"/> *@
-    @* </TitleContent> *@
     <DialogContent>
         <MudStack>
             @for (var i =0; i< ColumnNames.Count; i++)
             {
                 var iCopy = i;
-                <MudTextField @bind-Value="@ColumnNames[iCopy]" Variant="Variant.Outlined"></MudTextField>
+                <MudStack Row="true">
+                    <MudTextField @bind-Value="@ColumnNames[iCopy]" Variant="Variant.Outlined"></MudTextField>
+                    <MudIconButton OnClick="() => { DeleteColumn(ColumnNames[iCopy]);}" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                </MudStack>
+                
             }
             
         </MudStack>
@@ -27,7 +31,13 @@
     
     // close dialog and return result
     void Submit() => MudDialog.Close(DialogResult.Ok(ColumnNames));
-    
+
+    void DeleteColumn(string name)
+    {
+        ColumnNames.Remove(name);
+        _service.DeleteColumns(new[] { name });
+    }
+
 
     void Cancel() => MudDialog.Cancel();
 }

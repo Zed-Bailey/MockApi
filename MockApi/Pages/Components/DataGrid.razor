@@ -218,7 +218,7 @@
         var dialogParams = new DialogParameters();
         dialogParams.Add("ColumnNames", _dataService.ColumnNames.ToList());
         
-        var dialog = _dialogService.Show<RenameColumnsDialog>("Edit Columns", dialogParams);
+        var dialog = _dialogService.Show<EditColumnsDialog>("Edit Columns", dialogParams);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
