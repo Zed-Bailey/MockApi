@@ -45,15 +45,21 @@ public class DynamicRow
         json += "}";
         return json;
     }
-    
+
     /// <summary>
-    /// Add a single column to the end of the row, initializes column with default value
+    /// Add a single column to the end of the row, initializes column with provided value, if no value provided then it will be a default value
     /// </summary>
     /// <param name="name">name of column to add</param>
-    public void AddColumn(string name)
+    /// <param name="value">the value to initialize the column with, defaults to null</param>
+    public void AddColumn(string name, string? value = null)
     {
+        var column = new Column(name)
+        {
+            Value = value
+        };
+
         // add column
-        Columns.Add(new Column(name));
+        Columns.Add(column);
     }
 
     /// <summary>
@@ -70,6 +76,11 @@ public class DynamicRow
             Columns[i].Key = names[i];
         }
         
+    }
+
+    public void DeleteColumns(IEnumerable<string> columnName)
+    {
+        Columns.RemoveAll(c => columnName.Contains(c.Key));
     }
     
 

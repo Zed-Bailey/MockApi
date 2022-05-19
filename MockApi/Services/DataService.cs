@@ -93,7 +93,27 @@ public class DataService
             Rows.Remove(d);
         }
     }
-    
+
+    public void DeleteColumns(IEnumerable<string> columnsToRemove)
+    {
+        if (Rows.Count > 0)
+        {
+            foreach (var r in Rows)
+            {
+                r.DeleteColumns(columnsToRemove);
+            }
+            
+        }
+
+        ColumnNames.RemoveAll(c => columnsToRemove.Contains(c));
+    }
+
+    public void Clear()
+    {
+        ColumnNames.Clear();
+        Rows.Clear();
+
+    }
     public bool ImportFile(string file)
     {
         throw new NotImplementedException("Data file import is not implemented!");

@@ -6,6 +6,9 @@
 @using System.Configuration
 @using System.Collections.ObjectModel
 @using System.Collections.Specialized
+@using System.Dynamic
+@using CsvHelper
+@using CsvHelper.Configuration
 @inject DataService _dataService
 @inject ApiService _apiService
 @inject ISnackbar _snackbar
@@ -20,10 +23,7 @@
         {
             <InputFile id="fileImport" OnChange="ImportCsvFile" hidden accept=".csv"/>
             <MudButton StartIcon="@Icons.Material.Outlined.Upload" Variant="Variant.Filled" Color="Color.Dark" for="fileImport" HtmlTag="label">Import</MudButton>
-            
-            <div style="margin: 10px"></div>
-            <MudButton StartIcon="@Icons.Material.Outlined.Download" Variant="Variant.Text" Color="Color.Dark">Export</MudButton>
-            
+
             <MudSpacer/>
             <MudButton StartIcon="@Icons.Material.Outlined.Power" Variant="Variant.Filled" Color="Color.Info" OnClick="ToggleServer">Start</MudButton>   
         }
@@ -131,11 +131,66 @@
         _selectedItems.Clear();
     }
 
-    void ImportCsvFile(InputFileChangeEventArgs e)
+    async void ImportCsvFile(InputFileChangeEventArgs e)
     {
         //Todo: load file and convert to rows
         var file = e.File;
-        var data = file.OpenReadStream();
+
+        // check if file is larger then 5mb
+        if (file.Size > 5_000_000)
+        {
+            _snackbar.Add("File is larger then 5mb", Severity.Error);
+            return;
+        }
+
+        // https://github.com/JoshClose/CsvHelper/issues/1769   
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(buffer);
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture);
+        // https://stackoverflow.com/questions/11654562/how-to-convert-byte-array-to-string
+        
+        using var reader = new StringReader(System.Text.Encoding.UTF8.GetString(buffer, 0, buffer.Length));
+        using var csv = new CsvParser(reader, config);
+        await csv.ReadAsync();
+        string[] headers = csv.Record;
+        
+        _dataService.Clear();
+        
+        // assume first line is header
+        foreach (var header in csv.Record)
+        {
+            if (!_dataService.AddColumn(header))
+            {
+                _dataService.DeleteColumns(_dataService.ColumnNames);
+                _snackbar.Add("Duplicate columns are not currently supported", Severity.Error);
+                return;
+            }
+        }
+        
+        
+        while (await csv.ReadAsync())
+        {
+            
+            var row = new DynamicRow();
+            for (var i = 0; i < headers.Length; i++)
+            {
+                string value;
+                // try and get the record on the line, if an exception is thrown then assign a default empty string value
+                try
+                {
+                    value = csv.Record[i];
+                }
+                catch (Exception exception)
+                {
+                    value = "";
+                }
+                
+                row.AddColumn(headers[i], value);
+            }
+            _dataService.Rows.Add(row);
+        }
+        
+        _snackbar.Add("CSV file read successfully", Severity.Success);
     }
     
     // Create a new column
@@ -163,7 +218,7 @@
         var dialogParams = new DialogParameters();
         dialogParams.Add("ColumnNames", _dataService.ColumnNames.ToList());
         
-        var dialog = _dialogService.Show<RenameColumnsDialog>("Rename Columns", dialogParams);
+        var dialog = _dialogService.Show<RenameColumnsDialog>("Edit Columns", dialogParams);
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
