@@ -6,7 +6,7 @@ namespace MockApi.Data;
 public class LoggerMiddleWare
 {
     private readonly RequestDelegate _next;
-    private ApiService _service;
+    private readonly ApiService _service;
     
     public LoggerMiddleWare(RequestDelegate next, ApiService service)
     {

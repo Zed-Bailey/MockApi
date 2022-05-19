@@ -1,7 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using MockApi.Services
+@inherits LayoutComponentBase
 
 <PageTitle>MockApi</PageTitle>
-<MudThemeProvider IsDarkMode="true"/>
+<MudThemeProvider IsDarkMode="@Config.DarkMode"/>
 
 <MudDialogProvider
     FullWidth="true"

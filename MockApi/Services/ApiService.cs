@@ -6,7 +6,7 @@ namespace MockApi.Services;
 public class ApiService
 {
     public bool ApiEnabled;
-    public string Host;
+    public string Host = "";
     
     public readonly ObservableCollection<ApiLog> Events = new();
     
@@ -18,6 +18,10 @@ public class ApiService
     }
 
 
+    /// <summary>
+    /// add a new log to the services log collection
+    /// </summary>
+    /// <param name="log">the enw log to insert</param>
     public void AddLog(ApiLog log) => Events.Insert(0, log);
    
 }

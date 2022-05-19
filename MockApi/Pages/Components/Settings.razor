@@ -1,0 +1,12 @@
+@using MockApi.Services
+
+<MudContainer MaxWidth="MaxWidth.Medium" class="mt-2">
+    <MudSpacer/>
+    <MudSwitch @bind-Checked="@Config.DarkMode" Label="Dark Mode" 
+               ThumbIcon="@(Config.DarkMode ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)" ThumbIconColor="@(Config.DarkMode ? Color.Success : Color.Error)"/>
+    <MudSpacer/>
+</MudContainer>
+
+@code {
+    
+}
