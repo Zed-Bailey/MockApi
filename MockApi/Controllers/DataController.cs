@@ -87,7 +87,6 @@ public class DataController : ControllerBase
         var json = $"{{ \"{key}\" :\"{value}\"}}";
         return JsonResponse(json, statusCode);
     }
-
     
 
     // GET /api/data/:id
@@ -156,6 +155,7 @@ public class DataController : ControllerBase
         var matched = _service.FindAll(columnName, equalTo).Take(limit.Value);
         
         return JsonResponse(RowsToJson(matched));
+
     }
     
 
@@ -165,6 +165,7 @@ public class DataController : ControllerBase
     {
         if (_service.Rows.Count == 0)
             return JsonResponse("[]");
+
         
         return JsonResponse(RowsToJson(_service.Rows));
     }
