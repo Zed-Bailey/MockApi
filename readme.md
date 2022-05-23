@@ -92,8 +92,8 @@ this value is used when wanting to
   - optional `limit` parameter to only return a set amount, by default all matching rows will be returned
   - eg. limit to 1 row: `/api/data/select?where={column name}&is={value}&limit=1`
 
-- **PUT** `api/data/:id`
-  -  
+
+**Endpoints to update, delete and create rows are in development**
 
 
 
